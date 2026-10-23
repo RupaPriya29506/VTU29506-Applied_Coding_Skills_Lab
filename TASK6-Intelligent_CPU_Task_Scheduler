@@ -1,0 +1,73 @@
+CODE:
+import java.util.*;
+public class Main {
+    static class Task {
+        char name;
+        int frequency;
+        Task(char name, int frequency) {
+            this.name = name;
+            this.frequency = frequency;
+        }
+    }
+    static class Cooldown {
+        char name;
+        int frequency;
+        int availableTime;
+        Cooldown(char name, int frequency, int availableTime) {
+            this.name = name;
+            this.frequency = frequency;
+            this.availableTime = availableTime;
+        }
+    }
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+        int N = sc.nextInt();
+        int K = sc.nextInt();
+        Map<Character, Integer> map = new HashMap<>();
+        for (int i = 0; i < N; i++) {
+            char task = sc.next().charAt(0);
+            map.put(task, map.getOrDefault(task, 0) + 1);
+        }
+        PriorityQueue<Task> pq = new PriorityQueue<>(
+            (a, b) -> b.frequency - a.frequency
+        );
+        for (Map.Entry<Character, Integer> entry : map.entrySet()) {
+            pq.add(new Task(entry.getKey(), entry.getValue()));
+        }
+        Queue<Cooldown> cooldown = new LinkedList<>();
+        int time = 0;
+        int completed = 0;
+        while (completed < N) {
+            time++;
+            while (!cooldown.isEmpty()
+                    && cooldown.peek().availableTime <= time) {
+                Cooldown c = cooldown.poll();
+                if (c.frequency > 0) {
+                    pq.add(new Task(c.name, c.frequency));
+                }
+            }
+            if (!pq.isEmpty()) {
+                Task current = pq.poll();
+                current.frequency--;
+                completed++;
+                if (current.frequency > 0) {
+                    cooldown.add(
+                        new Cooldown(
+                            current.name,
+                            current.frequency,
+                            time + K + 1
+                        )
+                    );
+                }
+            }
+        }
+        System.out.println(time);
+    }
+}
+
+OUTPUT:
+Sample Input
+8 2
+A A A B B C D D
+Sample Output
+8
