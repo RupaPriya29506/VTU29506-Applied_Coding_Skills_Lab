@@ -1,0 +1,76 @@
+CODE:
+import java.util.*;
+public class Main {
+    static class Node {
+        int value, listIndex, elementIndex;
+        Node(int value, int listIndex, int elementIndex) {
+            this.value = value;
+            this.listIndex = listIndex;
+            this.elementIndex = elementIndex;
+        }
+    }
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+        int M = sc.nextInt();
+        int K = sc.nextInt();
+        List<List<Integer>> lists = new ArrayList<>();
+        for (int i = 0; i < M; i++) {
+            int size = sc.nextInt();
+            List<Integer> list = new ArrayList<>();
+            for (int j = 0; j < size; j++) {
+                list.add(sc.nextInt());
+            }
+            lists.add(list);
+        }
+        PriorityQueue<Node> minHeap = new PriorityQueue<>(
+            Comparator.comparingInt(node -> node.value)
+        );
+        for (int i = 0; i < M; i++) {
+            if (!lists.get(i).isEmpty()) {
+                minHeap.offer(new Node(lists.get(i).get(0), i, 0));
+            }
+        }
+        List<Integer> merged = new ArrayList<>();
+        while (!minHeap.isEmpty()) {
+            Node current = minHeap.poll();
+            merged.add(current.value);
+            int nextIndex = current.elementIndex + 1;
+            int listIndex = current.listIndex;
+            if (nextIndex < lists.get(listIndex).size()) {
+                minHeap.offer(new Node(
+                    lists.get(listIndex).get(nextIndex),
+                    listIndex,
+                    nextIndex
+                ));
+            }
+        }
+        System.out.println("Merged:");
+        for (int value : merged) {
+            System.out.print(value + " ");
+        }
+        System.out.println("\n");
+        System.out.println("TopK:");
+        PriorityQueue<Integer> maxHeap =
+            new PriorityQueue<>(Collections.reverseOrder());
+        maxHeap.addAll(merged);
+        for (int i = 0; i < K; i++) {
+            System.out.print(maxHeap.poll() + " ");
+        }
+        System.out.println();
+        sc.close();
+    }
+}
+
+OUTPUT:
+Sample Input
+3 5
+4 2 6 9 15
+3 1 7 20
+5 3 8 12 14 18
+Sample Output
+Merged:
+1 2 3 6 7 8 9 12 14 15 18 20
+
+TopK:
+20 18 15 14 12
+
